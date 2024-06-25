@@ -58,11 +58,12 @@ app.delete('/api/persons/:id',(request, response)=>{
 })
 
 app.post('/api/persons',(request, response)=>{
+  const { name, number } = request.body
   const newId = Math.floor(Math.random() * 1000000)
   const newPerson = {
     id: newId,
-    name: request.body.name,
-    number: request.body.number
+    name: name,
+    number: number
   }
 
   persons = persons.concat(newPerson)
