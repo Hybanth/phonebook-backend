@@ -1,6 +1,6 @@
 ## About the Project
-
-This repository contains the code for Part-3 of my Fullstack open project and exercises. The project encompasses backend development.
+deployed link: https://phonebook-backend-wjk2.onrender.com/
+Part-3 of my Fullstack open project. This encompasses backend of the app.
 For the frontend phonebook go to part2
 ## Technologies Used
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
