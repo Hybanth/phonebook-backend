@@ -1,7 +1,7 @@
 ## About the Project
-deployed link: https://phonebook-backend-wjk2.onrender.com/
-Part-3 of my Fullstack open project. This encompasses backend of the app.
-For the frontend phonebook go to part2
+Part-3 of my Fullstack open project. \
+deployed link: https://phonebook-backend-wjk2.onrender.com/  This encompasses backend of the app. \
+For the frontend phonebook go to part2 https://github.com/Hybanth/Fullstack-open/tree/main/part2
 ## Technologies Used
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
