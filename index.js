@@ -1,7 +1,9 @@
+require('dotenv').config();
 const express = require('express')
 const app = express()
 var morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./module/person');
 
 app.use(express.json());
 
@@ -13,82 +15,73 @@ app.use(cors())
 
 app.use(express.static('dist'))
 
-let persons = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
 
 app.get('/', (request,response)=>{
     response.send('<h1>PhoneBook-backend</h1>')
 })
 
-app.get('/info',(request,response)=>{
-  const now = new Date();
-  const dateTimeString = now.toString();
-  response.send(`<p>Phonebook has info for ${persons.length} people</p><br/><p>${dateTimeString}</p>`)
-})
+app.get('/info', (request, response) => {
+  Person.countDocuments({}).then(count => {
+    const now = new Date();
+    const dateTimeString = now.toString();
+    response.send(`<p>Phonebook has info for ${count} people</p><br/><p>${dateTimeString}</p>`);
+  });
+});
 
-app.get('/api/persons',(request, response)=>{
-    response.json(persons)
-})
+app.get('/api/persons', (request, response) => {
+  Person.find({}).then(persons => {
+    response.json(persons);
+  });
+});
 
-app.get('/api/persons/:id',(request, response)=>{
-  const id = Number(request.params.id);
-  const person = persons.find(person => person.id === id)
-  if(person){
-    response.json(person)
-  } else {
-    response.status(404).end()
-  }
-})
+app.get('/api/persons/:id', (request, response) => {
+  Person.findById(request.params.id)
+    .then(person => {
+      if (person) {
+        response.json(person);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching person:', error);
+      response.status(500).json({ error: 'failed to fetch person' });
+    });
+});
 
-app.delete('/api/persons/:id',(request, response)=>{
-  const id = request.params.id
-  persons = persons.filter(person => person.id != id)
+app.delete('/api/persons/:id', (request, response) => {
+  Person.findByIdAndRemove(request.params.id)
+    .then(() => {
+      response.status(204).end();
+    })
+    .catch(error => {
+      console.error('Error deleting person:', error);
+      response.status(500).json({ error: 'failed to delete person' });
+    });
+});
 
-  response.status(204).end()
-})
-
-app.post('/api/persons',(request, response)=>{
-  const { name, number } = request.body
+app.post('/api/persons', (request, response) => {
+  const { name, number } = request.body;
 
   if (!name || !number) {
-    return response.status(400).json({ error: 'name or number missing' })
+    return response.status(400).json({ error: 'name or number missing' });
   }
 
-  const nameExists = persons.some(person => person.name === name)
-  if (nameExists) {
-    return response.status(400).json({ error: 'name must be unique' })
-  }
-  
-  const newId = Math.floor(Math.random() * 1000000)
-  const newPerson = {
-    id: newId,
-    name: name,
-    number: number
-  }
+  const person = new Person({
+    name,
+    number
+  });
 
-  persons = persons.concat(newPerson)
-  response.json(newPerson)
-})
+  person.save()
+    .then(savedPerson => {
+      response.json(savedPerson);
+    })
+    .catch(error => {
+      console.error('Error saving person:', error);
+      response.status(500).json({ error: 'failed to save person' });
+    });
+});
+
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
