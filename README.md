@@ -1,5 +1,3 @@
-## About the Project
-Part-3 of my Fullstack open project. \
 deployed link: https://phonebook-backend-wjk2.onrender.com/ \
 Frontend React code of this phonebook in -> https://github.com/Hybanth/Fullstack-open/tree/main/part2
 ## Technologies Used
