@@ -6,17 +6,6 @@ const cors = require('cors')
 const mongoose = require('mongoose');
 const Person = require('./module/person');
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch((error) => {
-    console.error('error connecting to MongoDB:', error.message);
-  });
-
 app.use(express.json());
 
 morgan.token('body', (req) => JSON.stringify(req.body));
@@ -46,7 +35,7 @@ app.get('/api/persons', (request, response) => {
   });
 });
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
     .then(person => {
       if (person) {
@@ -55,24 +44,18 @@ app.get('/api/persons/:id', (request, response) => {
         response.status(404).end();
       }
     })
-    .catch(error => {
-      console.error('Error fetching person:', error);
-      response.status(500).json({ error: 'failed to fetch person' });
-    });
+    .catch(error => next(error));
 });
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
     .then(() => {
       response.status(204).end();
     })
-    .catch(error => {
-      console.error('Error deleting person:', error);
-      response.status(500).json({ error: 'failed to delete person' });
-    });
+    .catch(error => next(error));
 });
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const { name, number } = request.body;
 
   if (!name || !number) {
@@ -88,10 +71,35 @@ app.post('/api/persons', (request, response) => {
     .then(savedPerson => {
       response.json(savedPerson);
     })
-    .catch(error => {
-      console.error('Error saving person:', error);
-      response.status(500).json({ error: 'failed to save person' });
-    });
+    .catch(error => next(error));
+});
+
+app.put('/api/persons/:id', (request, response, next) => {
+  const { id } = request.params;
+  const { name, number } = request.body;
+
+  if (!name || !number) {
+    return response.status(400).json({ error: 'name or number missing' });
+  }
+
+  Person.findByIdAndUpdate(
+    id,
+    { name, number },
+    { new: true, runValidators: true }
+  )
+    .then(updatedPerson => {
+      if (updatedPerson) {
+        response.json(updatedPerson);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch(error => next(error));
+});
+
+// Handler for unknown endpoints
+app.use((request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' });
 });
 
 
