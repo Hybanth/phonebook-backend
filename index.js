@@ -3,7 +3,19 @@ const express = require('express')
 const app = express()
 var morgan = require('morgan')
 const cors = require('cors')
+const mongoose = require('mongoose');
 const Person = require('./module/person');
+
+const MONGODB_URI = process.env.MONGODB_URI;
+
+
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch((error) => {
+    console.error('error connecting to MongoDB:', error.message);
+  });
 
 app.use(express.json());
 
